@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para Brissia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   LEE ESTO CUANDO... — Libro digital para Brissia
+   Todo el CSS vive aquí. Organizado por secciones:
+   1. Reset y variables
+   2. Fondo animado (estrellas + hilo de constelación)
+   3. Corazones flotantes
+   4. Portada
+   5. Índice
+   6. Páginas de lectura
+   7. Controles de navegación
+   8. Responsive
+   ============================================================ */
+
+/* ---------- 1. RESET Y VARIABLES ---------- */
+:root{
+  --bg-deep:#fdf2f8;
+  --bg-mid:#eaf6fb;
+  --bg-soft:#f5eefb;
+  --gold:#e587ac;
+  --rose:#5fb8dc;
+  --cream:#4a4458;
+  --cream-dim:#8b859c;
+  --line: rgba(229,135,172,0.28);
+  --serif-display: 'Poppins', 'Segoe UI', sans-serif;
+  --serif-body: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+html,body{
+  height:100%;
+  background:var(--bg-deep);
+  color:var(--cream);
+  font-family:var(--serif-body);
+  overflow:hidden;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
+}
+
+::selection{ background:var(--gold); color:#fff; }
+
+/* ---------- 2. FONDO ANIMADO ---------- */
+#stars-canvas{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:0;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(255,196,222,0.55), transparent 55%),
+    radial-gradient(ellipse at 80% 70%, rgba(179,224,247,0.55), transparent 55%),
+    linear-gradient(180deg, var(--bg-deep), var(--bg-mid) 50%, var(--bg-soft));
+}
+
+/* ---------- 3. CORAZONES FLOTANTES ---------- */
+.floating-heart{
+  position:fixed;
+  bottom:-40px;
+  font-size:14px;
+  color:var(--gold);
+  opacity:0;
+  z-index:1;
+  pointer-events:none;
+  user-select:none;
+  animation:floatUp linear forwards;
+}
+@keyframes floatUp{
+  0%{ opacity:0; transform:translateY(0) translateX(0) rotate(0deg); }
+  10%{ opacity:0.55; }
+  85%{ opacity:0.35; }
+  100%{ opacity:0; transform:translateY(-105vh) translateX(var(--drift,20px)) rotate(20deg); }
+}
+
+/* ---------- App shell ---------- */
+#app{
+  position:relative;
+  z-index:2;
+  height:100vh;
+  width:100vw;
+}
+
+.view{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .7s ease;
+}
+.view.active{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+
+/* ---------- 4. PORTADA ---------- */
+#cover{
+  flex-direction:column;
+  text-align:center;
+  padding:24px;
+}
+.cover-frame{
+  border:1px solid var(--line);
+  padding:60px 50px;
+  border-radius:6px;
+  background:rgba(255,255,255,0.45);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  box-shadow:0 0 60px rgba(229,135,172,0.12), inset 0 0 40px rgba(255,255,255,0.4);
+  max-width:640px;
+  animation:coverIn 1.6s ease both;
+}
+@keyframes coverIn{
+  from{ opacity:0; transform:translateY(24px) scale(0.98); }
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+.cover-eyebrow{
+  letter-spacing:0.35em;
+  font-size:11px;
+  text-transform:uppercase;
+  color:var(--gold);
+  opacity:0.85;
+  margin-bottom:22px;
+}
+.cover-title{
+  font-family:var(--serif-display);
+  font-size:clamp(2.4rem, 6vw, 4rem);
+  font-weight:400;
+  letter-spacing:0.02em;
+  line-height:1.15;
+  color:var(--cream);
+  margin-bottom:8px;
+}
+.cover-title em{
+  font-style:italic;
+  color:var(--rose);
+}
+.cover-sub{
+  font-size:1rem;
+  color:var(--cream-dim);
+  font-style:italic;
+  margin-bottom:36px;
+  letter-spacing:0.02em;
+}
+.cover-signature{
+  font-size:1.05rem;
+  color:var(--gold);
+  margin-bottom:40px;
+  font-style:italic;
+}
+.constellation{
+  width:180px;
+  height:70px;
+  margin:0 auto 34px;
+  position:relative;
+}
+.constellation svg{ width:100%; height:100%; overflow:visible; }
+.constellation .dot{ fill:var(--gold); }
+.constellation .thread{
+  stroke:var(--gold);
+  stroke-width:1;
+  fill:none;
+  stroke-dasharray:140;
+  stroke-dashoffset:140;
+  animation:drawThread 2.4s ease forwards 0.5s;
+  opacity:0.7;
+}
+@keyframes drawThread{ to{ stroke-dashoffset:0; } }
+
+.btn{
+  font-family:var(--serif-body);
+  font-size:0.95rem;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:#ffffff;
+  background:linear-gradient(135deg, var(--gold), var(--rose));
+  border:none;
+  padding:14px 34px;
+  border-radius:30px;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  transition:transform .35s ease, box-shadow .35s ease;
+  box-shadow:0 8px 24px rgba(229,135,172,0.28);
+}
+.btn::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(120deg, transparent, rgba(255,255,255,0.55), transparent);
+  transform:translateX(-120%);
+  transition:transform .7s ease;
+}
+.btn:hover{ transform:translateY(-2px); box-shadow:0 12px 30px rgba(229,135,172,0.4); }
+.btn:hover::after{ transform:translateX(120%); }
+.btn:focus-visible{ outline:2px solid var(--cream); outline-offset:3px; }
+
+.btn-ghost{
+  background:transparent;
+  color:var(--cream-dim);
+  border:1px solid var(--line);
+  box-shadow:none;
+  padding:10px 22px;
+  border-radius:24px;
+  font-size:0.8rem;
+}
+.btn-ghost:hover{
+  color:var(--cream);
+  border-color:var(--gold);
+  transform:translateY(-1px);
+  box-shadow:none;
+}
+
+/* ---------- 5. ÍNDICE ---------- */
+#toc{
+  flex-direction:column;
+  padding:60px 20px;
+  overflow-y:auto;
+}
+.toc-inner{
+  max-width:760px;
+  width:100%;
+  margin:0 auto;
+  padding-bottom:40px;
+}
+.toc-header{
+  text-align:center;
+  margin-bottom:40px;
+}
+.toc-header h2{
+  font-family:var(--serif-display);
+  font-size:clamp(1.8rem,4vw,2.6rem);
+  font-weight:400;
+  color:var(--gold);
+  letter-spacing:0.02em;
+  margin-bottom:10px;
+}
+.toc-header p{ color:var(--cream-dim); font-style:italic; font-size:0.95rem; }
+
+.toc-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(260px,1fr));
+  gap:14px;
+}
+.toc-item{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:16px 18px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:rgba(255,255,255,0.5);
+  backdrop-filter:blur(6px);
+  cursor:pointer;
+  text-align:left;
+  color:var(--cream);
+  font-family:var(--serif-body);
+  transition:transform .3s ease, border-color .3s ease, background .3s ease;
+  opacity:0;
+  transform:translateY(14px);
+  animation:tocIn .6s ease forwards;
+}
+@keyframes tocIn{ to{ opacity:1; transform:translateY(0); } }
+.toc-item:hover{
+  transform:translateY(-3px);
+  border-color:var(--gold);
+  background:rgba(255,255,255,0.8);
+}
+.toc-num{
+  font-family:var(--serif-display);
+  font-size:0.85rem;
+  color:var(--gold);
+  opacity:0.75;
+  min-width:26px;
+}
+.toc-icon{ font-size:1.1rem; color:var(--rose); }
+.toc-text{ font-size:0.95rem; line-height:1.4; }
+
+.toc-footer{
+  display:flex;
+  justify-content:center;
+  margin-top:36px;
+}
+
+/* ---------- 6. PÁGINAS DE LECTURA ---------- */
+#reader{
+  flex-direction:column;
+  padding:0;
+}
+.reader-shell{
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:70px 20px 110px;
+}
+
+.progress-wrap{
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:5;
+  padding:14px 24px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  background:linear-gradient(180deg, rgba(253,242,248,0.9), transparent);
+}
+.progress-track{
+  flex:1;
+  height:2px;
+  background:rgba(139,133,156,0.18);
+  border-radius:2px;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg, var(--gold), var(--rose));
+  transition:width .6s ease;
+}
+.progress-label{
+  font-size:0.75rem;
+  letter-spacing:0.08em;
+  color:var(--cream-dim);
+  white-space:nowrap;
+}
+.progress-toc-btn{
+  background:none; border:none; color:var(--cream-dim);
+  font-size:1.1rem; cursor:pointer; transition:color .3s;
+}
+.progress-toc-btn:hover{ color:var(--gold); }
+
+.page-scroll{
+  width:100%;
+  max-width:640px;
+  height:100%;
+  overflow-y:auto;
+  padding:10px 6px 20px;
+}
+.page-scroll::-webkit-scrollbar{ width:5px; }
+.page-scroll::-webkit-scrollbar-thumb{ background:var(--line); border-radius:4px; }
+
+.page{
+  display:none;
+  perspective:1600px;
+}
+.page.current{ display:block; }
+
+.page-card{
+  transform-style:preserve-3d;
+  transition:transform .6s cubic-bezier(.4,.1,.2,1), opacity .5s ease;
+}
+.page.exit-next .page-card{ transform:rotateY(-14deg) translateX(-40px); opacity:0; }
+.page.exit-prev .page-card{ transform:rotateY(14deg) translateX(40px); opacity:0; }
+.page.enter-next .page-card{ transform:rotateY(14deg) translateX(40px); opacity:0; }
+.page.enter-prev .page-card{ transform:rotateY(-14deg) translateX(-40px); opacity:0; }
+.page.settled .page-card{ transform:rotateY(0) translateX(0); opacity:1; }
+
+.chapter-mini-constellation{
+  width:60px; height:34px; margin-bottom:18px; opacity:0.8;
+}
+.chapter-eyebrow{
+  font-size:0.72rem;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:10px;
+}
+.chapter-title{
+  font-family:var(--serif-display);
+  font-size:clamp(1.5rem, 3.4vw, 2.1rem);
+  font-weight:400;
+  line-height:1.3;
+  color:var(--cream);
+  margin-bottom:26px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--line);
+}
+.chapter-body p{
+  font-size:1.02rem;
+  line-height:1.85;
+  color:var(--cream);
+  margin-bottom:18px;
+  letter-spacing:0.01em;
+}
+.chapter-body p:first-of-type::first-letter{
+  font-family:var(--serif-display);
+  font-size:2.6rem;
+  float:left;
+  line-height:0.85;
+  padding:6px 8px 0 0;
+  color:var(--gold);
+}
+.highlight-quote{
+  font-family:var(--serif-display);
+  font-style:italic;
+  font-size:1.2rem;
+  color:var(--rose);
+  text-align:center;
+  padding:22px 10px;
+  margin:26px 0;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  opacity:0;
+  transform:translateY(16px);
+  transition:opacity .9s ease, transform .9s ease;
+}
+.highlight-quote.visible{ opacity:1; transform:translateY(0); }
+
+.chapter-closing-mark{
+  text-align:center;
+  color:var(--gold);
+  font-size:1.3rem;
+  margin-top:10px;
+  opacity:0.7;
+}
+
+/* Carta final especial */
+.final-letter .chapter-title{ text-align:center; border-bottom:none; }
+.final-letter .signoff{
+  text-align:right;
+  font-family:var(--serif-display);
+  font-style:italic;
+  color:var(--gold);
+  font-size:1.25rem;
+  margin-top:30px;
+}
+
+/* ---------- 7. CONTROLES DE NAVEGACIÓN ---------- */
+.nav-controls{
+  position:fixed;
+  bottom:0; left:0; right:0;
+  z-index:5;
+  display:flex;
+  justify-content:center;
+  gap:14px;
+  padding:18px 20px 22px;
+  background:linear-gradient(0deg, rgba(253,242,248,0.92), transparent);
+}
+.nav-btn{
+  background:rgba(255,255,255,0.55);
+  border:1px solid var(--line);
+  color:var(--cream);
+  font-family:var(--serif-body);
+  font-size:0.85rem;
+  padding:11px 22px;
+  border-radius:26px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  transition:all .3s ease;
+}
+.nav-btn:hover:not(:disabled){
+  border-color:var(--gold);
+  background:rgba(255,255,255,0.85);
+  transform:translateY(-2px);
+}
+.nav-btn:disabled{ opacity:0.3; cursor:default; }
+.nav-btn:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+
+/* ---------- 8. RESPONSIVE ---------- */
+@media (max-width:600px){
+  .cover-frame{ padding:44px 26px; }
+  .reader-shell{ padding:64px 12px 130px; }
+  .chapter-title{ font-size:1.5rem; }
+  .chapter-body p{ font-size:0.98rem; line-height:1.75; }
+  .nav-btn span.label{ display:none; }
+  .nav-btn{ padding:12px 16px; }
+  .toc-grid{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+<div id="heart-layer"></div>
+
+<div id="app">
+
+  <!-- ============ PORTADA ============ -->
+  <section id="cover" class="view active">
+    <div class="cover-frame">
+      <div class="cover-eyebrow">Un libro para leer despacio</div>
+      <div class="constellation">
+        <svg viewBox="0 0 180 70">
+          <path class="thread" d="M20,50 C 60,10 120,10 160,50"></path>
+          <circle class="dot" cx="20" cy="50" r="3.4"></circle>
+          <circle class="dot" cx="160" cy="50" r="3.4"></circle>
+        </svg>
+      </div>
+      <h1 class="cover-title">Para <em>Brissia</em></h1>
+      <p class="cover-sub">Palabras para los días con distancia de por medio</p>
+      <p class="cover-signature">Con cariño, Camilo</p>
+      <button class="btn" id="btn-start">Comenzar a leer</button>
+    </div>
+  </section>
+
+  <!-- ============ ÍNDICE ============ -->
+  <section id="toc" class="view">
+    <div class="toc-inner">
+      <div class="toc-header">
+        <h2>Lee esto cuando...</h2>
+        <p>Elige el momento que estás viviendo. Este libro está hecho para abrirse por cualquier página.</p>
+      </div>
+      <div class="toc-grid" id="toc-grid"></div>
+      <div class="toc-footer">
+        <button class="btn-ghost" id="btn-toc-start">Leer desde el principio →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LECTOR ============ -->
+  <section id="reader" class="view">
+    <div class="progress-wrap">
+      <button class="progress-toc-btn" id="btn-open-toc" title="Índice" aria-label="Abrir índice">☰</button>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-label" id="progress-label">1 / 19</div>
+    </div>
+
+    <div class="reader-shell">
+      <div class="page-scroll" id="page-scroll">
+        <div id="pages"></div>
+      </div>
+    </div>
+
+    <div class="nav-controls">
+      <button class="nav-btn" id="btn-prev">‹ <span class="label">Anterior</span></button>
+      <button class="nav-btn" id="btn-cover">✶ <span class="label">Portada</span></button>
+      <button class="nav-btn" id="btn-next"><span class="label">Siguiente</span> ›</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ============================================================
+   LEE ESTO CUANDO... — Lógica de la aplicación
+   Secciones:
+   1. Contenido de los capítulos (fácil de editar)
+   2. Render del índice y de las páginas
+   3. Navegación entre páginas (con efecto de pasar página)
+   4. Fondo: estrellas en canvas + corazones flotantes
+   5. Revelado de frases destacadas al hacer scroll
+   ============================================================ */
+
+/* ---------- 1. CONTENIDO ---------- */
+// Cada capítulo: icon (unicode), title, quote (frase destacada), paragraphs (array de strings)
+const chapters = [
+{
+  icon:"☁",
+  title:"Lee esto cuando tengas un día difícil",
+  quote:"No necesito arreglar tu día. Solo quiero que sepas que no lo atraviesas sola.",
+  paragraphs:[
+"Si estás leyendo esto es porque hoy algo pesó más de la cuenta. No sé exactamente qué fue, pero conozco esa sensación de llegar al final de la tarde con el cuerpo cansado y la cabeza llena de cosas que no alcanzaste a resolver. Quiero que sepas que está bien. No todos los días tienen que salir bien para que tú sigas siendo suficiente.",
+"A veces pienso en la cantidad de mensajes que me escribes sin darte cuenta de que en ellos se nota cómo estuvo tu día. Un punto y aparte de más, una respuesta más corta de lo habitual, un 'estoy bien' que suena distinto a los otros. Los leo con atención, aunque no siempre te lo diga.",
+"No estoy ahí para prepararte algo caliente ni para sentarme a tu lado en silencio, y eso a veces me frustra más de lo que te imaginas. Pero sí puedo estar aquí, en este mensaje, recordándote que un mal día no borra todo lo bueno que has construido, ni todo lo que eres cuando nadie te está mirando.",
+"Quiero que te des permiso de estar cansada sin sentir que le debes una explicación al mundo, Vladisita. No tienes que responder rápido, ni fingir que todo va bien si no es así. Yo prefiero mil veces tu verdad cansada que tu versión perfecta y falsa.",
+"Guarda este capítulo para los días grises, Brissia. Y cuando lo leas, respira un poco más lento. Yo sigo aquí, del otro lado de la pantalla, esperando que mañana amanezca un poco más liviano para ti."
+]
+},
+{
+  icon:"✉",
+  title:"Lee esto cuando me extrañes",
+  quote:"La distancia no vacía los mensajes de contenido. Solo los hace esperar un poco más para llegar.",
+  paragraphs:[
+"Extrañar a alguien que quieres y que no puedes tener cerca es una de las cosas más honestas que existen. No es debilidad, ni exageración, ni una señal de que algo anda mal entre nosotros. Es, simplemente, la prueba de que lo que sentimos es real y de que la distancia, por mucho que digamos que la manejamos bien, también pesa.",
+"Yo también te extraño en momentos que no esperaba. En una calle que me recuerda algo que me contaste, en una canción que no tiene nada que ver contigo pero igual te trae a mi cabeza, en el silencio de la noche cuando el celular no suena y quisiera que sonara con tu nombre.",
+"No voy a decirte que la distancia se siente pequeña, porque sería mentirte. Pero sí puedo decirte que cada mensaje que te escribo, incluso los más simples, cargan la intención de acortarla un poco. Cuando te cuento cómo estuvo mi día, cuando te dibujo algo sin razón aparente solo para sacarte una sonrisa, cuando te escribo solo para decir que pensé en ti, estoy tratando de estar presente de la única forma que puedo estar ahora.",
+"Extrañar no significa que algo falte para que estemos bien. Significa que hay algo que vale la pena sostener, incluso cuando no es fácil. Y yo elijo sostenerlo, un mensaje a la vez, un día a la vez.",
+"Así que si hoy me extrañas de esa forma que aprieta el pecho, permítete sentirlo sin culpa, Vladisita. Y después, si quieres, escríbeme. No necesitas una razón especial. Yo también quiero saber de ti, incluso en los días en los que no pasa nada nuevo que contar."
+]
+},
+{
+  icon:"◐",
+  title:"Lee esto cuando dudes de ti",
+  quote:"Dudar de ti misma no te hace menos capaz. Solo significa que te importa hacer las cosas bien.",
+  paragraphs:[
+"Sé que a veces te cuesta creer en lo que vales, Brissia, aunque para mí sea evidente. He leído tus mensajes cuando algo no te sale como esperabas y noto cómo te exiges más de lo que le exigirías a cualquier otra persona. Quiero decirte, con toda la calma del mundo, que puedes soltar un poco esa exigencia sin dejar de crecer.",
+"Dudar no es un defecto. Es señal de que piensas antes de actuar, de que te importa el resultado, de que no tomas las cosas a la ligera. El problema no es dudar, sino quedarte atrapada ahí, repitiéndote que no eres suficiente cuando la evidencia dice lo contrario.",
+"Yo he visto cómo enfrentas los días difíciles sin rendirte, cómo sigues intentando incluso cuando algo te sale mal, cómo te preocupas por hacer bien las cosas para las personas que quieres. Eso no es casualidad ni suerte. Es carácter.",
+"No necesito inventarte cualidades ni exagerar para hacerte sentir bien. Simplemente te recuerdo lo que ya es cierto: eres alguien que se levanta, que aprende, que no se conforma con quedarse quieta cuando algo le importa. Eso vale mucho más que hacerlo todo perfecto a la primera.",
+"Si hoy dudas de ti, Vladisita, deja que estas palabras te acompañen un rato. No tienes que resolver todas tus dudas en un solo día. Solo necesitas recordar que, incluso con ellas, sigues siendo alguien en quien vale la pena confiar. Yo confío en ti, incluso en los días en los que tú no lo haces del todo."
+]
+},
+{
+  icon:"☀",
+  title:"Lee esto cuando necesites sonreír",
+  quote:"Prefiero mil veces hacerte reír con algo torpe que impresionarte con algo perfecto.",
+  paragraphs:[
+"Si abriste este capítulo buscando algo ligero, has llegado al lugar correcto. No todo tiene que ser profundo para ser importante, y una sonrisa a mitad de semana también cuenta como un logro.",
+"Me gusta pensar en las tonterías que te he escrito sin pensarlo demasiado: un chiste malo a mitad de una conversación seria, una palabra mal escrita a propósito, esos dibujos torpes que te hago sin ninguna intención artística solo para que te rías un poco. No busco quedar bien contigo. Busco que, al menos por un segundo, se te escape una sonrisa genuina.",
+"Hay algo que me gusta mucho de nuestra manera de hablarnos: que podemos pasar de un tema serio a una broma sin que eso reste importancia a ninguno de los dos. Eso también es intimidad. Poder ser tontos juntos, aunque sea a través de una pantalla.",
+"Así que si hoy necesitas sonreír, imagina que te estoy mandando uno de esos mensajes sin sentido que normalmente te hacen soltar una carcajada corta, de esas que se te escapan aunque estés de mal humor. Imagina también que del otro lado estoy esperando tu respuesta con una sonrisa parecida.",
+"No necesitas una razón grande para sonreír, Brissia. A veces basta con recordar que hay alguien, en algún lugar, pensando en cómo hacerte reír un rato, aunque sea con algo tan simple como esto."
+]
+},
+{
+  icon:"✦",
+  title:"Lee esto cuando sientas miedo",
+  quote:"El miedo no significa que algo esté mal contigo. Solo significa que te importa lo que puede pasar.",
+  paragraphs:[
+"El miedo tiene mala fama, pero no siempre es un enemigo. A veces solo es una forma exagerada de decirte que algo te importa de verdad. Miedo a fallar, miedo a no ser suficiente, miedo a que las cosas cambien: todos esos miedos nacen de que te importa el resultado, no de que estés haciendo algo mal.",
+"Sé que la distancia también trae sus propios miedos. Miedo a que el tiempo pase distinto para cada uno, miedo a perderse detalles del día a día del otro, miedo a que lo cotidiano se vuelva costumbre y la costumbre se vuelva distancia real. Yo también he sentido ese miedo, en silencio, mientras escribo un mensaje más para que no se sienta tan lejos lo que compartimos.",
+"Pero el miedo no decide lo que hacemos. Nosotros decidimos, incluso con miedo. Y hasta ahora, cada mensaje que te he escrito, cada dibujo que te he mandado sin que me lo pidas, cada conversación que hemos sostenido incluso en los días difíciles, ha sido una pequeña decisión de seguir eligiendo esto.",
+"No te pido que dejes de tener miedo. Te pido que no dejes que el miedo hable más fuerte que lo que sí sabes con certeza: que hay alguien que piensa en ti todos los días, que cuenta contigo, que no se ha ido ni piensa hacerlo por una mala racha.",
+"Si hoy sientes miedo, escríbeme, Vladisita. No necesito que me expliques todo con detalle. Solo dime que tienes miedo, y yo te recordaré, con la misma calma de siempre, todas las razones por las que seguimos aquí."
+]
+},
+{
+  icon:"⟳",
+  title:"Lee esto cuando pienses que todo sale mal",
+  quote:"Un mal momento no es lo mismo que una mala vida. Son cosas distintas, aunque a veces se sientan igual.",
+  paragraphs:[
+"Hay días en los que parece que todo se acumula al mismo tiempo: algo en el trabajo, algo en casa, algo contigo misma, y de repente la sensación de que nada está saliendo bien. Quiero decirte que esa sensación, aunque real, casi nunca cuenta la historia completa.",
+"Cuando me escribes en esos días, noto que tiendes a juntar todo en una sola idea: 'todo sale mal'. Pero si lo miramos con calma, casi siempre son dos o tres cosas puntuales, no todo. Y esas cosas, aunque duelan, no anulan lo demás que sigue estando bien, incluido lo nuestro.",
+"No estoy ahí para ayudarte a ordenar la casa ni para acompañarte a resolver el problema del día, y eso también me cuesta. Pero puedo ayudarte a ordenar la cabeza, aunque sea un poco, recordándote que las rachas difíciles tienen fecha de vencimiento, incluso cuando no lo parece.",
+"Si hoy sientes que todo sale mal, permíteme decirte algo que sí está saliendo bien: seguimos escribiéndonos, seguimos eligiendo contarnos el día, seguimos sosteniendo esto a pesar de la distancia. Eso no es poco. Eso es, en medio del caos, algo firme.",
+"Respira, escribe lo que te está pasando si quieres, o simplemente guarda silencio un rato, Brissia. Yo voy a seguir aquí, sin apurarte, esperando a que el día se acomode de nuevo, aunque sea de a poco."
+]
+},
+{
+  icon:"♡",
+  title:"Lee esto cuando quieras recordar cuánto te amo",
+  quote:"Te amo en la versión ordinaria de los días, no solo en los momentos perfectos.",
+  paragraphs:[
+"A veces el amor se explica mejor en lo pequeño que en lo grande, Vladisita. Te amo en la manera en que me cuentas tu día con detalles que a nadie más le importarían tanto. Te amo en cómo te ríes de tus propios errores en las palabras torpes que a veces se te escapan al escribir rápido.",
+"Te amo en la paciencia con la que me esperas cuando tardo en responder por el trabajo, y en la honestidad con la que me dices cuando algo no te gustó, en vez de callarlo. Te amo en los mensajes que me escribes sin pensarlo dos veces, esos donde simplemente estás siendo tú, sin cuidar cada palabra.",
+"No te amo por una idea perfecta de ti que me haya inventado. Te amo por quien eres realmente: con tus días buenos y los otros, con tus dudas y tus certezas, con tu manera particular de demostrar cariño incluso cuando estás cansada.",
+"La distancia me ha enseñado a amar distinto: con más palabras, con más intención, con menos que dar por sentado. Cada mensaje que te escribo lo pienso, aunque sea breve, y hasta los dibujos que a veces te hago los pienso más de lo que parece. Cada 'buenos días' que te mando tiene detrás la intención real de acompañarte desde lejos.",
+"Si hoy necesitas recordar cuánto te amo, relee este capítulo las veces que haga falta, Brissia. Y después, si quieres, escríbeme algo simple, como 'te amo', y yo te lo voy a devolver multiplicado, porque contigo nunca me cuesta hacerlo."
+]
+},
+{
+  icon:"❋",
+  title:"Lee esto cuando necesites sentirte abrazada",
+  quote:"No puedo abrazarte hoy, pero puedo quedarme aquí, sin prisa, hasta que se te pase.",
+  paragraphs:[
+"Hay días en los que lo único que uno necesita es sentirse contenida, sin que nadie diga nada especial ni resuelva nada, Vladisita. Sé que la distancia me quita la posibilidad de dártelo de la forma más simple, y eso es algo que no dejo de sentir también.",
+"Pero he aprendido que la contención se puede construir de otras formas. Se construye cuando te escribo apenas veo que algo anda mal, cuando te digo que no necesitas explicarme nada si no quieres, cuando me quedo en el chat contigo aunque no tengamos mucho que decirnos, solo para que sepas que no estás sola con lo que sea que sientas.",
+"Me gustaría poder ofrecerte algo más que palabras en momentos así, lo sé. Pero también sé que las palabras, cuando son sinceras y constantes, terminan generando algo parecido a la calma. No son un reemplazo perfecto, pero no son poca cosa tampoco.",
+"Si hoy necesitas sentirte acompañada, quédate un momento con esta idea: hay alguien, del otro lado de la pantalla, dispuesto a bajar el ritmo de la conversación, a no exigirte nada, a simplemente estar presente el tiempo que haga falta.",
+"No tienes que estar bien para escribirme, Brissia. No tienes que tener ánimo para responder rápido. Solo necesitas saber que aquí hay espacio para ti, tal como estés hoy, sin condiciones."
+]
+},
+{
+  icon:"✺",
+  title:"Lee esto cuando estés feliz",
+  quote:"Tu alegría, aunque sea a distancia, también es un poco mía.",
+  paragraphs:[
+"Si hoy estás feliz, quiero que sepas que eso también me alegra a mí, incluso sin saber exactamente qué la provocó, Vladisita. Hay una felicidad especial en pensar en ti sonriendo del otro lado, en imaginar tu cara cuando algo te sale bien o cuando simplemente el día decidió ser amable contigo.",
+"Me encanta cuando me cuentas las cosas buenas con el mismo detalle con el que me cuentas las difíciles. Cuando me escribes riendo de verdad, sin pensarlo, o cuando me dices 'no vas a creer lo que pasó' antes de contarme algo bueno. Esos mensajes se guardan en un lugar especial para mí.",
+"La distancia a veces hace que sienta que me pierdo partes de tu vida diaria, pero también me ha enseñado a valorar mucho más los momentos en los que decides compartirme tu alegría. No los das por sentado, y yo tampoco.",
+"Quiero que sigas contándome lo bueno, no solo lo difícil. Quiero seguir siendo parte de tus días felices, aunque sea a través de un mensaje, de un dibujo improvisado, de una idea compartida. Tu felicidad no necesita que yo esté presente físicamente para importarme; me importa igual, con la misma intensidad.",
+"Así que si hoy estás feliz, Brissia, disfrútalo sin culpa. Y si tienes ganas, cuéntamelo. Nada me gusta más que leer tus mensajes cuando la alegría se te nota incluso en la forma de escribir."
+]
+},
+{
+  icon:"◈",
+  title:"Lee esto cuando quieras recordar por qué seguimos aquí",
+  quote:"Seguimos aquí porque, incluso en los días difíciles, seguimos eligiéndonos.",
+  paragraphs:[
+"A veces, en medio del cansancio o la rutina, vale la pena preguntarse por qué seguimos sosteniendo algo que no es fácil. No porque dude de la respuesta, sino porque creo que merece decirse en voz alta de vez en cuando.",
+"Seguimos aquí porque, a pesar de la distancia, encontramos la forma de construir una historia real: con conversaciones largas que no siempre son cómodas, con dibujos que documentan lo cotidiano a mi manera, con mensajes que llegan en momentos inesperados solo para decir que el otro estaba en nuestros pensamientos.",
+"Seguimos aquí porque preferimos la incomodidad de la distancia antes que la comodidad de no intentarlo. Porque ambos hemos decidido, una y otra vez, que esto vale el esfuerzo de escribir en vez de hablar en persona, de esperar en vez de tener todo inmediato, de construir confianza con palabras en lugar de presencia física.",
+"No es un camino sencillo, y sería deshonesto decir que nunca dudamos. Pero cada vez que una duda aparece, también aparece algo más fuerte: la certeza de que lo que tenemos vale la pena sostenerse, aunque tome más tiempo de lo que nos gustaría.",
+"Si hoy necesitas recordar por qué seguimos aquí, Vladisita, piensa en todos los mensajes que hemos intercambiado, en los dibujos que se han vuelto parte de nuestra historia, en las ganas que ambos seguimos teniendo de contarnos el día. Eso, sumado, es la respuesta."
+]
+},
+{
+  icon:"☾",
+  title:"Lee esto cuando necesites calma",
+  quote:"No tienes que resolverlo todo hoy. Solo respirar y seguir, un poco a la vez.",
+  paragraphs:[
+"La calma no siempre llega sola; a veces hay que buscarla con intención, sobre todo en los días donde la cabeza no para de dar vueltas, Brissia. Si hoy es uno de esos días, quiero acompañarte a bajar el ritmo, aunque sea con palabras.",
+"Piensa en algo simple: no tienes que resolver todo hoy. No tienes que responder todos los mensajes pendientes, ni tomar todas las decisiones importantes, ni tener claridad total sobre el futuro. Hoy solo tienes que respirar y avanzar un poco, eso es suficiente.",
+"Me gusta imaginar que, en momentos así, estamos simplemente sentados uno frente al otro, sin hablar de nada en particular, dejando que el silencio también sea una forma de compañía. La distancia no nos permite ese silencio compartido de manera literal, pero podemos construirlo con un mensaje breve, sin presión de responder rápido: 'aquí estoy, tómate tu tiempo'.",
+"La calma también se construye recordando lo que ya está resuelto: que nos elegimos, que seguimos escribiéndonos, que hay un plan silencioso de seguir construyendo esto pase lo que pase. Sobre esa base firme, lo demás se puede ir acomodando poco a poco.",
+"Si hoy necesitas calma, Vladisita, cierra los ojos un momento después de leer esto. Respira profundo tres veces. Y recuerda que no estás sola resolviendo lo que sea que tengas encima, aunque yo no pueda estar físicamente ahí."
+]
+},
+{
+  icon:"⌛",
+  title:"Lee esto cuando tengas miedo del futuro",
+  quote:"No sé exactamente cómo será el futuro, pero sé que quiero construirlo contigo.",
+  paragraphs:[
+"El futuro asusta cuando se piensa todo de golpe. Preguntas como '¿qué va a pasar con nosotros?' o '¿cuándo vamos a estar en el mismo lugar?' pueden pesar mucho si se cargan todas juntas en un solo momento. Quiero ayudarte a bajarles el peso, aunque sea un poco.",
+"No tengo una respuesta exacta de cuándo se va a acortar la distancia entre nosotros, y sería injusto prometerte fechas que no dependen solo de mí. Pero sí puedo decirte con seguridad que la intención de que eso pase sigue intacta, y que trabajo, dentro de lo que puedo, para que ese día llegue.",
+"El miedo al futuro muchas veces viene de querer controlar algo que todavía no ha pasado. Y aunque entiendo esa necesidad, también he aprendido que la mayoría de las cosas se van resolviendo en su momento, no antes. Ahora mismo, lo único que necesitamos manejar bien es el presente: seguir escribiéndonos, seguir cuidando esto, seguir construyendo confianza día a día.",
+"Confía en que no estás construyendo este futuro sola. Cada mensaje que te mando pensando en ti, cada plan que hacemos aunque sea a largo plazo, cada conversación sobre cómo nos imaginamos más adelante, es parte de esa construcción conjunta.",
+"Si hoy el futuro te da miedo, Brissia, enfócate en lo que sí es cierto hoy: que seguimos eligiéndonos, que seguimos hablando, que seguimos queriendo lo mismo, aunque el camino tome su tiempo."
+]
+},
+{
+  icon:"✧",
+  title:"Lee esto cuando estés orgullosa de ti",
+  quote:"Quiero que sepas que yo también estoy orgulloso de ti, incluso en lo que tú no notas.",
+  paragraphs:[
+"Si hoy sientes orgullo por algo que lograste, quiero que te detengas un segundo a disfrutarlo por completo, sin restarle mérito ni compararlo con lo que hicieron otros. Te lo has ganado, y mereces sentirlo sin apuro.",
+"Me encanta cuando me cuentas tus logros, por pequeños que te parezcan. Ese proyecto que terminaste, esa conversación difícil que manejaste bien, ese día en el que decidiste cuidarte en vez de exigirte de más. Todo eso también merece celebrarse, aunque no siempre lo compartas pensando que es 'suficientemente importante'.",
+"Quiero que sepas que yo estoy orgulloso de ti incluso en cosas que tú ni notas: en cómo sostienes esta relación a distancia sin perder la paciencia, en cómo sigues creciendo aunque las cosas no siempre sean fáciles, en cómo eres capaz de ser honesta conmigo incluso cuando eso significa incomodarme un poco.",
+"El orgullo propio no tiene que depender de que alguien más lo valide, pero está bien que también lo compartas. No minimices tus logros para parecer humilde. Puedes estar feliz por ti misma y seguir siendo la misma persona sencilla que eres.",
+"Si hoy estás orgullosa de ti, Vladisita, escríbeme y cuéntame qué fue. Quiero celebrarlo contigo, aunque sea a la distancia, con las palabras que tengo a mano."
+]
+},
+{
+  icon:"⟡",
+  title:"Lee esto cuando quieras volver a creer en nosotros",
+  quote:"Cuando dudes de nosotros, recuerda cuántas veces ya decidimos seguir.",
+  paragraphs:[
+"Es normal que, de vez en cuando, la fe en una relación a distancia tambalee un poco. No porque algo esté mal, sino porque sostener algo así requiere una confianza constante que no siempre es fácil de mantener todos los días.",
+"Si hoy dudas de nosotros, quiero recordarte algunos hechos simples: seguimos escribiéndonos todos los días. Seguimos contándonos lo que nos pasa, lo bueno y lo malo. Seguimos haciendo planes, aunque sean pequeños, para el futuro. Ninguno de los dos se ha rendido, ni siquiera en los momentos donde hubiera sido más fácil hacerlo.",
+"Creer en nosotros no significa no tener dudas nunca. Significa elegir seguir, incluso con ellas, porque lo que construimos vale más que el miedo pasajero. Cada vez que una duda apareció y decidimos hablarlo en vez de callarlo, salimos más fuertes, no más débiles.",
+"No te pido una fe ciega ni una confianza sin preguntas. Te pido que, antes de rendirte ante una duda, revises la evidencia: los mensajes que seguimos intercambiando, las ganas que ambos seguimos teniendo de seguir aquí, la manera en que seguimos eligiéndonos incluso sin la facilidad de la cercanía física.",
+"Si hoy necesitas volver a creer en nosotros, Brissia, relee esto las veces que haga falta. Y si aún así te queda una duda, escríbemela directamente. Prefiero resolverla contigo que dejar que crezca sola en tu cabeza."
+]
+},
+{
+  icon:"✵",
+  title:"Lee esto cuando simplemente quieras sentirte acompañada",
+  quote:"No necesitas un motivo para escribirme. Solo necesitas ganas de no estar sola un rato.",
+  paragraphs:[
+"A veces no hace falta un problema grande, ni una alegría especial, ni una fecha importante para querer sentirse acompañada. A veces uno simplemente necesita saber que hay alguien del otro lado, disponible, pensando en uno, sin más motivo que ese.",
+"Si hoy es uno de esos días, quiero que sepas que puedes escribirme sin necesidad de justificarlo, Vladisita. No tienes que decirme 'perdón por molestarte' ni sentir que interrumpes algo importante. Nada es más importante para mí que estar presente cuando me necesitas, aunque sea desde lejos.",
+"Me gusta pensar en los mensajes que nos mandamos sin razón aparente: un '¿qué estás haciendo?' a mitad de la tarde, un dibujito random que se me ocurrió sin motivo, un 'solo quería saludarte' sin más contexto. Esos mensajes, aunque parezcan pequeños, son los que más sostienen esta relación en el día a día.",
+"La compañía no siempre necesita presencia física. A veces basta con saber que alguien está ahí, disponible, dispuesto a leer lo que sea que quieras contar, sin juzgar, sin apurar, sin necesitar que tengas algo importante que decir.",
+"Si hoy solo quieres sentirte acompañada, aquí estoy, Brissia. Escríbeme lo que sea, aunque no tenga sentido, aunque sea solo para decir 'hola'. Yo voy a estar del otro lado, con las mismas ganas de saber de ti que siempre tengo."
+]
+},
+{
+  icon:"☺",
+  title:"Lee esto cuando extrañes mis mensajes tontos",
+  quote:"Nuestras tonterías por chat también son parte de esta historia, no un relleno de ella.",
+  paragraphs:[
+"Hay algo que valoro mucho de nosotros y que a veces pasa desapercibido: la cantidad de tonterías que nos hemos dicho sin ningún propósito más que hacer reír al otro. Stickers de WhatsApp que no le van a hacer gracia a nadie más, dibujos torpes hechos en dos minutos, palabras inventadas que solo nosotros entendemos, respuestas absurdas a preguntas serias.",
+"Si hoy extrañas ese tipo de mensajes, quiero decirte que a mí también me hacen falta cuando pasan varios días sin que aparezcan, Vladisita. Hay una comodidad especial en poder ser ridículos juntos, sin miedo a que el otro lo tome mal o piense que no somos serios con lo que sentimos.",
+"Esas tonterías, en realidad, dicen mucho de lo que somos. Dicen que hay confianza suficiente para bajar la guardia, que no necesitamos estar siempre en un tono profundo para sentir que la relación es real, que también hay espacio para lo ligero en medio de todo lo demás que sostenemos con seriedad.",
+"No subestimo esos mensajes solo porque parezcan sin importancia. Para mí son una de las formas más honestas de cariño que existen: elegir hacerte reír sin ganar nada a cambio, más que ver un 'jajaja' o un sticker de WhatsApp riéndose aparecer en la pantalla.",
+"Si hoy extrañas eso, Brissia, no dudes en mandarme algo absurdo ahora mismo. Prometo responder con la misma tontería o una peor, porque contigo nunca me da pena ser así."
+]
+},
+{
+  icon:"⟠",
+  title:"Lee esto cuando necesites recordar que esto es real",
+  quote:"Esto no es una idea bonita de una relación. Es una relación real, sostenida todos los días.",
+  paragraphs:[
+"A veces, desde afuera, una relación a distancia puede parecer menos 'real' que una donde se ven todos los días. Quiero que sepas que no comparto esa idea, Vladisita, y que espero que tú tampoco la cargues sola en tu cabeza.",
+"Lo real no se mide por la cercanía física, sino por la constancia, la honestidad y el esfuerzo genuino de sostener algo incluso cuando es difícil. Y en eso, lo nuestro tiene evidencia de sobra: los mensajes diarios, las conversaciones sinceras, los dibujos que comparto para no perdernos detalles del día del otro, los planes que seguimos haciendo pensando en un futuro juntos.",
+"No inventamos una versión idealizada de esto. Hemos discutido, hemos tenido días de silencio incómodo, hemos tenido que aprender a confiar sin ver, y aun así seguimos aquí. Eso no es fantasía, eso es trabajo real, sostenido por dos personas que decidieron que valía la pena.",
+"Si hoy necesitas recordar que esto es real, piensa en todo lo que hemos construido sin la facilidad de la cercanía: confianza, comunicación, paciencia, cariño expresado en palabras precisas en lugar de gestos automáticos. Construir así, sin atajos, hace que lo que tenemos sea más sólido, no menos.",
+"Esto es real porque decidimos hacerlo real, día tras día, mensaje tras mensaje, Brissia. Y pienso seguir eligiéndolo así, con la misma intención de siempre."
+]
+},
+{
+  icon:"✹",
+  title:"Lee esto cuando imagines el día en que por fin nos veamos",
+  quote:"La luz de las estrellas tarda en llegar, pero llega. Nosotros también, Brissia.",
+  paragraphs:[
+"Me permito imaginar ese día con más frecuencia de la que admito, Vladisita. Todavía no nos hemos visto en persona ni una sola vez, y aun así sé exactamente qué se siente extrañar a alguien que solo conozco a través de una pantalla. Por eso, cuando pienso en agosto, se me acelera algo por dentro que no sabía que podía sentir por alguien que está tan lejos.",
+"Sé la fecha, o al menos sé la intención: a fines de agosto voy a viajar a verte, a Estados Unidos, a encontrarme por primera vez con la persona con la que llevo tanto tiempo construyendo esto solo con palabras. No sé todos los detalles de cómo será ese día, y prefiero no inventarlos con exageración para no crear expectativas imposibles. Pero sí sé que va a estar cargado de la misma calma con la que hemos construido todo hasta ahora.",
+"Pienso en lo extraño y hermoso que va a ser hacer, por primera vez, las cosas que ahora solo podemos contarnos por mensaje: caminar juntos sin apuro, compartir una comida sin pensar en la diferencia de horario, quedarnos en silencio simplemente porque se puede, sin que el silencio signifique ausencia de mensajes. Todo eso, que para otras parejas es rutina, para nosotros va a ser la primera vez.",
+"La distancia nos ha enseñado a valorar lo pequeño, y creo que eso se va a notar todavía más ese día, cuando por fin no haya kilómetros ni husos horarios de por medio. Vamos a apreciar lo cotidiano con una intensidad que quizás otras parejas, que nunca vivieron esto, no logran apreciar de la misma manera.",
+"Si hoy imaginas ese día, Brissia, permítete ilusionarte sin miedo. Yo también lo imagino, cuento los días sin decirlo tanto, y cada mensaje que te escribo mientras tanto es, de alguna forma, un paso pequeño hacia agosto, hacia vernos por primera vez, hacia dejar de imaginar y empezar a vivirlo."
+]
+}
+];
+
+// Carta final (capítulo de cierre)
+const finalLetter = {
+  icon:"✦",
+  title:"Antes de cerrar este libro",
+  isFinal:true,
+  paragraphs:[
+"Brissia, si llegaste hasta aquí, quiero que sepas que cada palabra de este libro fue escrita pensando específicamente en ti, en lo que hemos vivido y en lo que todavía nos falta por vivir. No es un regalo genérico ni una idea sacada de cualquier lado: es mi forma de dejarte algo que puedas abrir cuantas veces lo necesites, aunque yo no esté físicamente ahí para decírtelo en el momento exacto.",
+"Quiero agradecerte, antes que nada, por la paciencia con la que has sostenido esta relación a distancia. Sé que no ha sido fácil, que hay días donde la distancia pesa más de lo que cualquiera de los dos admite en voz alta, y aun así seguiste eligiendo escribirme, contarme tu día, tus dudas, tus alegrías. Eso no lo doy por sentado.",
+"Quiero agradecerte también por la confianza. Confiar en alguien que no puedes ver todos los días, que solo existe para ti a través de mensajes y palabras escritas, requiere una fe que no todo el mundo tiene la capacidad de sostener. Tú la has sostenido, incluso en los momentos donde hubiera sido más simple dudar.",
+"Este libro nació de las ganas de ponerte en palabras algo que a veces cuesta decir en el momento justo: que te amo en la versión cotidiana de esto, en los mensajes de buenos días, en los dibujos que a veces te hago sin ningún motivo especial, en las conversaciones largas sobre nada en particular, en los silencios que a veces se dan cuando ninguno de los dos sabe qué más decir pero igual seguimos ahí.",
+"La distancia, aunque a veces se sienta como una condena, prefiero pensarla como una etapa. Una etapa que estamos atravesando con la intención clara de que no sea para siempre, construyendo mientras tanto una base tan sólida que, quiero creer, va a sostenernos incluso cuando la cercanía llegue y traiga sus propios desafíos nuevos.",
+"No sé exactamente cuándo se va a acortar esta distancia entre nosotros, y prefiero no prometerte fechas que no me corresponde asegurar solo a mí. Pero sí puedo prometerte que voy a seguir eligiendo esto con la misma intención de siempre: escribiéndote, acompañándote, sosteniendo lo que construimos aunque tome más tiempo del que quisiéramos.",
+"Guarda este libro, Vladisita. Ábrelo cuando lo necesites, sea cual sea el capítulo que te llame ese día. No fue escrito para leerse una sola vez, sino para acompañarte las veces que haga falta, como quisiera poder hacerlo yo mismo si la distancia no existiera.",
+"Gracias por dejarme quererte de esta manera, con mensajes que viajan y tardan, pero que siempre llegan. Gracias por seguir aquí, del otro lado, sosteniendo esto conmigo. Y gracias, sobre todo, por ser exactamente quien eres, sin necesidad de que yo te pida ser distinta.",
+"Este es solo el cierre de un libro, no el cierre de nada más. Lo que sigue todavía está por escribirse, y quiero escribirlo contigo, un mensaje a la vez, hasta que un día no necesitemos más palabras para estar cerca."
+]
+};
+
+const allPages = [...chapters, finalLetter];
+const totalPages = allPages.length;
+let currentIndex = 0;
+
+/* ---------- 2. RENDER ---------- */
+const tocGrid = document.getElementById('toc-grid');
+const pagesContainer = document.getElementById('pages');
+
+function miniConstellationSVG(seed){
+  const y1 = 14 + (seed % 5);
+  const y2 = 20 - (seed % 4);
+  return `<svg viewBox="0 0 60 34" class="chapter-mini-constellation">
+    <path d="M6,${y1} C 24,4 36,4 54,${y2}" stroke="var(--gold)" stroke-width="1" fill="none" opacity="0.6"/>
+    <circle cx="6" cy="${y1}" r="2.2" fill="var(--gold)"/>
+    <circle cx="54" cy="${y2}" r="2.2" fill="var(--rose)"/>
+  </svg>`;
+}
+
+chapters.forEach((ch, i)=>{
+  const item = document.createElement('button');
+  item.className = 'toc-item';
+  item.style.animationDelay = (i*0.04)+'s';
+  item.innerHTML = `<span class="toc-num">${String(i+1).padStart(2,'0')}</span><span class="toc-icon">${ch.icon}</span><span class="toc-text">${ch.title}</span>`;
+  item.addEventListener('click', ()=> goToPage(i));
+  tocGrid.appendChild(item);
+});
+
+allPages.forEach((ch, i)=>{
+  const page = document.createElement('div');
+  page.className = 'page' + (ch.isFinal ? ' final-letter' : '');
+  page.dataset.index = i;
+
+  const bodyHTML = ch.paragraphs.map((p, idx)=>{
+    // insert highlight quote after second paragraph for regular chapters
+    return `<p>${p}</p>`;
+  }).join('');
+
+  page.innerHTML = `
+    <div class="page-card">
+      ${miniConstellationSVG(i)}
+      <div class="chapter-eyebrow">${ch.isFinal ? 'Carta final' : 'Capítulo ' + (i+1) + ' de ' + chapters.length}</div>
+      <h2 class="chapter-title">${ch.title}</h2>
+      <div class="chapter-body">
+        ${bodyHTML}
+        ${ch.quote ? `<div class="highlight-quote reveal">${ch.quote}</div>` : ''}
+      </div>
+      ${ch.isFinal ? `<p class="signoff">Con todo mi cariño,<br>Camilo.</p>` : `<div class="chapter-closing-mark">✶</div>`}
+    </div>
+  `;
+  pagesContainer.appendChild(page);
+});
+
+const pageEls = Array.from(document.querySelectorAll('.page'));
+
+/* ---------- 3. NAVEGACIÓN ---------- */
+const views = { cover: document.getElementById('cover'), toc: document.getElementById('toc'), reader: document.getElementById('reader') };
+function showView(name){
+  Object.values(views).forEach(v=>v.classList.remove('active'));
+  views[name].classList.add('active');
+}
+
+const progressFill = document.getElementById('progress-fill');
+const progressLabel = document.getElementById('progress-label');
+const pageScroll = document.getElementById('page-scroll');
+
+function renderPage(index, direction){
+  const prevIndex = currentIndex;
+  currentIndex = Math.max(0, Math.min(totalPages-1, index));
+
+  pageEls.forEach((el,i)=>{
+    el.classList.remove('current','settled','exit-next','exit-prev','enter-next','enter-prev');
+  });
+
+  const incoming = pageEls[currentIndex];
+  incoming.classList.add('current');
+
+  if(direction === 'next'){ incoming.classList.add('enter-next'); }
+  else if(direction === 'prev'){ incoming.classList.add('enter-prev'); }
+
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      incoming.classList.add('settled');
+    });
+  });
+
+  pageScroll.scrollTop = 0;
+
+  progressFill.style.width = ((currentIndex+1)/totalPages*100)+'%';
+  progressLabel.textContent = (currentIndex+1)+' / '+totalPages;
+
+  document.getElementById('btn-prev').disabled = currentIndex === 0;
+  document.getElementById('btn-next').disabled = currentIndex === totalPages-1;
+
+  observeReveals();
+}
+
+function goToPage(index){
+  showView('reader');
+  renderPage(index);
+}
+
+document.getElementById('btn-start').addEventListener('click', ()=> showView('toc'));
+document.getElementById('btn-toc-start').addEventListener('click', ()=> goToPage(0));
+document.getElementById('btn-open-toc').addEventListener('click', ()=> showView('toc'));
+document.getElementById('btn-cover').addEventListener('click', ()=> showView('cover'));
+
+document.getElementById('btn-next').addEventListener('click', ()=>{
+  if(currentIndex < totalPages-1) renderPage(currentIndex+1, 'next');
+});
+document.getElementById('btn-prev').addEventListener('click', ()=>{
+  if(currentIndex > 0) renderPage(currentIndex-1, 'prev');
+});
+
+document.addEventListener('keydown', (e)=>{
+  if(!views.reader.classList.contains('active')) return;
+  if(e.key === 'ArrowRight') document.getElementById('btn-next').click();
+  if(e.key === 'ArrowLeft') document.getElementById('btn-prev').click();
+});
+
+/* ---------- 4. FONDO: ESTRELLAS + CORAZONES ---------- */
+const canvas = document.getElementById('stars-canvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+
+function resizeCanvas(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const count = Math.floor((canvas.width*canvas.height)/9000);
+  stars = Array.from({length: count}, ()=>({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    r: Math.random()*1.3+0.3,
+    baseAlpha: Math.random()*0.5+0.2,
+    speed: Math.random()*0.02+0.005,
+    offset: Math.random()*Math.PI*2
+  }));
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+let t = 0;
+function animateStars(){
+  t += 1;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = 'rgba(10,14,36,0)';
+  stars.forEach(s=>{
+    const alpha = s.baseAlpha + Math.sin(t*s.speed + s.offset)*0.25;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(213,146,182,${Math.max(0,alpha)})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(animateStars);
+}
+animateStars();
+
+const heartLayer = document.getElementById('heart-layer');
+function spawnHeart(){
+  const heart = document.createElement('div');
+  heart.className = 'floating-heart';
+  heart.textContent = '♥';
+  heart.style.left = Math.random()*100+'vw';
+  const duration = 12 + Math.random()*10;
+  heart.style.animationDuration = duration+'s';
+  heart.style.setProperty('--drift', (Math.random()*60-30)+'px');
+  heart.style.fontSize = (10+Math.random()*10)+'px';
+  heartLayer.appendChild(heart);
+  setTimeout(()=> heart.remove(), duration*1000+500);
+}
+setInterval(spawnHeart, 3500);
+spawnHeart();
+
+/* ---------- 5. REVELADO DE FRASES DESTACADAS ---------- */
+let observer;
+function observeReveals(){
+  const reveals = document.querySelectorAll('.page.current .reveal');
+  if(observer) observer.disconnect();
+  observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { root: pageScroll, threshold: 0.4 });
+  reveals.forEach(el=> observer.observe(el));
+}
+
+/* ---------- INICIALIZACIÓN ---------- */
+renderPage(0);
+</script>
+
+</body>
+</html>
